@@ -1,0 +1,53 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip \
+          git \
+          zip \
+          unzip \
+          openjdk-17-jdk \
+          build-essential \
+          libssl-dev \
+          libffi-dev \
+          libsqlite3-dev \
+          zlib1g-dev \
+          libbz2-dev \
+          libreadline-dev \
+          libncurses5-dev \
+          autoconf \
+          automake \
+          libtool \
+          m4 \
+          pkg-config
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install --upgrade buildozer cython
+
+    - name: Build APK
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: SidikiToureSTEM-APK
+        path: bin/*.apk
