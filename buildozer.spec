@@ -27,3 +27,13 @@ android.java =
 android.accept_sdk_license = True
 android.ndk_version = 25b
 android.sdk_version = 33
+
+# 👇 NOUVELLE SECTION : On force une version spécifique de libffi
+android.add_src =
+android.gradle_repositories =
+android.gradle_dependencies =
+android.add_assets =
+android.add_src =
+android.add_java =
+android.add_libs =
+# Fin de la nouvelle section
