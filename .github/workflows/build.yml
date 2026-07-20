@@ -8,13 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build APK with Docker (run as non-root)
-      run: docker run --rm -u $(id -u):$(id -g) -v ${{ github.workspace }}:/workspace -w /workspace kivy/buildozer:latest buildozer android debug -- --assume-yes
+    - name: Build APK with Docker (build then fix ownership)
+      run: |
+        HOST_UID=$(id -u)
+        HOST_GID=$(id -g)
+        docker run --rm \
+          -v ${{ github.workspace }}:/workspace -w /workspace \
+          kivy/buildozer:latest /bin/bash -c "buildozer android debug -- --assume-yes && chown -R $HOST_UID:$HOST_GID /workspace/bin"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
