@@ -41,6 +41,11 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython
 
+    - name: Set up environment variables
+      run: |
+        echo "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true" >> $GITHUB_ENV
+        echo "ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true" >> $GITHUB_ENV
+
     - name: Build APK
       run: |
         export PATH="$HOME/.local/bin:$PATH"
