@@ -14,12 +14,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Build APK with Docker
-      uses: docker://kivy/buildozer:latest
-      with:
-        args: buildozer android debug
+      run: docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace kivy/buildozer:latest buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: SidikiToureSTEM-APK
         path: bin/*.apk
