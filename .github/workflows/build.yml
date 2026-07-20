@@ -13,14 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build APK with Docker (no root check)
+    - name: Build APK with Docker
       run: |
         docker run --rm \
           -v ${{ github.workspace }}:/workspace \
           -w /workspace \
-          -e BUILDOZER_SKIP_ROOT_CHECK=1 \
           kivy/buildozer:latest \
-          buildozer android debug
+          bash -c "echo 'y' | buildozer android debug"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
