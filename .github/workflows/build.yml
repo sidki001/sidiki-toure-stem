@@ -9,6 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    # On augmente la mémoire et le temps pour éviter les erreurs
+    env:
+      GRADLE_OPTS: "-Xmx2048m -Dorg.gradle.jvmargs=-Xmx2048m"
+      JAVA_OPTS: "-Xmx2048m"
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -36,19 +41,23 @@ jobs:
           m4 \
           pkg-config \
           libxml2-dev \
-          libxmlsec1-dev
+          libxmlsec1-dev \
+          ninja-build
 
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip
-        pip install --upgrade buildozer cython
+        pip install --upgrade buildozer cython virtualenv
 
     - name: Build APK
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        # On force l'utilisation de la libffi du système pour éviter l'erreur de compilation
-        export CFLAGS="-I/usr/include"
-        export LDFLAGS="-L/usr/lib/x86_64-linux-gnu"
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        export ANDROID_NDK="$HOME/.buildozer/android/platform/android-ndk-r25c"
+        export ANDROID_API=33
+        export ANDROID_MIN_API=21
+        # On nettoie avant de compiler pour éviter les conflits
+        buildozer android clean
         buildozer -v android debug
 
     - name: Upload APK
