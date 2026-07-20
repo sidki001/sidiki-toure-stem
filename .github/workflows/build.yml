@@ -34,21 +34,21 @@ jobs:
           automake \
           libtool \
           m4 \
-          pkg-config
+          pkg-config \
+          libxml2-dev \
+          libxmlsec1-dev
 
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip
         pip install --upgrade buildozer cython
 
-    - name: Set up environment variables
-      run: |
-        echo "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true" >> $GITHUB_ENV
-        echo "ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true" >> $GITHUB_ENV
-
     - name: Build APK
       run: |
         export PATH="$HOME/.local/bin:$PATH"
+        # On force l'utilisation de la libffi du système pour éviter l'erreur de compilation
+        export CFLAGS="-I/usr/include"
+        export LDFLAGS="-L/usr/lib/x86_64-linux-gnu"
         buildozer -v android debug
 
     - name: Upload APK
