@@ -7,18 +7,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
-    # On augmente la mémoire et le temps pour éviter les erreurs
-    env:
-      GRADLE_OPTS: "-Xmx2048m -Dorg.gradle.jvmargs=-Xmx2048m"
-      JAVA_OPTS: "-Xmx2048m"
+    runs-on: ubuntu-22.04  # On utilise une version plus stable
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -28,40 +23,44 @@ jobs:
           unzip \
           openjdk-17-jdk \
           build-essential \
-          libssl-dev \
-          libffi-dev \
-          libsqlite3-dev \
-          zlib1g-dev \
-          libbz2-dev \
-          libreadline-dev \
-          libncurses5-dev \
           autoconf \
           automake \
           libtool \
-          m4 \
           pkg-config \
-          libxml2-dev \
-          libxmlsec1-dev \
           ninja-build
 
-    - name: Install Python dependencies
+    - name: Install buildozer
       run: |
-        pip install --upgrade pip
-        pip install --upgrade buildozer cython virtualenv
+        pip3 install --user --upgrade buildozer cython
+
+    - name: Create buildozer.spec
+      run: |
+        cat > buildozer.spec << 'EOF'
+[app]
+title = Sidiki Toure STEM
+package.name = sidikitourestem
+package.domain = org.stem
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0.0
+icon.filename = icon.png
+orientation = portrait
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+android.minapi = 21
+android.targetapi = 33
+requirements = python3,kivy
+android.allow_backup = True
+fullscreen = 0
+presplash.filename = presplash.png
+EOF
 
     - name: Build APK
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-        export ANDROID_NDK="$HOME/.buildozer/android/platform/android-ndk-r25c"
-        export ANDROID_API=33
-        export ANDROID_MIN_API=21
-        # On nettoie avant de compiler pour éviter les conflits
-        buildozer android clean
-        buildozer -v android debug
+        buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: SidikiToureSTEM-APK
+        name: app
         path: bin/*.apk
